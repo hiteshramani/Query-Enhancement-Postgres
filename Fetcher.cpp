@@ -3,6 +3,8 @@
 #include <vector>
 #include <stdlib.h>
 #include <string.h>
+#include <ctime>
+#include <time.h>
 
 void sortingFunc(std::vector<int> array);
 
@@ -17,7 +19,7 @@ char * ReturnToken()
 	size_t result;
 	static char *s = 0;
 
-	pFile = fopen ( "/home/hitesh/Desktop/Project/Project_Final_Work/Parsed_Query.txt" , "rb" );
+	pFile = fopen ( "/tmp/Parsed_Query.txt" , "r" );
 	if (pFile==NULL) {fputs ("File error",stderr); return s;}
 
 	// obtain file size:
@@ -41,68 +43,64 @@ char * ReturnToken()
 
 int main(int argc, char* argv[])
 {
-	char *token;
-	//char *query_token;
-	char *dir_token;
-	std::vector<int> myArray(20000010);
-	char * sql;
-	int counter = 0;
+	/* Declare variables */
+	char *token, *query_token, *dir_token;
+	double duration1;
+	vector<int> Postgres_Vector_Array;
 	
+	/* Start timer for analysis */
+	time_t start,end;
+	time (&start);
+	
+	/* Find the Query token and the Direction token */
 	token = ReturnToken();
-	//query_token = strtok(token, "\n");
+	query_token = strtok(token, "\n");
 	dir_token = strtok(NULL, "\n");
-	//printf("%s",query_token);
 	
-	try{
-      connection C("dbname=postgres user=postgres hostaddr=127.0.0.1 port=5432");
-      if (C.is_open()) {
-         cout << "Opened database successfully: " << C.dbname() << endl;
-         //printf("%s",query_token);
-      } else {
-         cout << "Can't open database" << endl;
-         return 1;
-      }
-      //printf("%s",query_token);
-      /* Create SQL statement */
+	try
+	{
+		/* Open Database */
+		connection C("dbname=postgres user=hitesh hostaddr=127.0.0.1 port=5432");
+		if (C.is_open()) 
+		{
+			cout << "Opened database successfully: " << C.dbname() << endl;
+		} 
+		else 
+		{
+			cout << "Can't open database" << endl;
+			return 1;
+		}
+		
+		/* Create a non-transactional object. */
+		nontransaction N(C);
       
-		sql = strtok(token,"\n");
-      //token = ReturnToken();
-	//query_token = strtok(token, "\n");
-	//dir_token = strtok(NULL, "\n");
-      printf("%s",sql);
+		/* Execute SQL query */
+		result R( N.exec( query_token ));
+      
+		/* List down all the records */
+		for (result::const_iterator c = R.begin(); c != R.end(); ++c) 
+		{
+			Postgres_Vector_Array.push_back(c[0].as<int>());
+		}
+		
+		/* Sort the numbers on GPU */
+		sortingFunc(Postgres_Vector_Array);
+		cout << "Sorting done successfully" << endl;
+      
+		time (&end);
+		double dif = difftime (end,start);
+		printf ("Elasped time for 2 Fetch, One Sort and One Copy to File opertaions is %.2lf seconds.\n", dif );
+		
+		/* Disconnect */
+		C.disconnect ();
+	}
+	catch (const exception &e)
+	{
+		cerr << e.what() << endl;
+		return 1;
+	}
 
-      /* Create a non-transactional object. */
-      nontransaction N(C);
-      
-      /* Execute SQL query */
-      result R( N.exec( sql ));
-      
-      /* List down all the records */
-      for (result::const_iterator c = R.begin(); c != R.end(); ++c) {
-		 myArray[counter] = c[0].as<int>();
-		 //cout << myArray[counter] << "\n";
-		 counter++;
-         //cout << "ID = " << c[0].as<int>() << endl;
-         //cout << "Name = " << c[1].as<string>() << endl;
-         //cout << "Age = " << c[2].as<int>() << endl;
-         //cout << "Address = " << c[3].as<string>() << endl;
-         //cout << "Salary = " << c[4].as<float>() << endl;
-      }
-      
-     /* for(int j=0;j<9;j++)
-      {
-		cout << myArray[j] << "\n";
-      }*/
-      sortingFunc(myArray);
-      cout << "sorting done successfully" << endl;
-      
-      C.disconnect ();
-   }catch (const std::exception &e){
-      cerr << e.what() << std::endl;
-      return 1;
-   }
-
-   return 0;
+	return 0;
 }
 
 

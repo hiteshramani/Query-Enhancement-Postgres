@@ -31,21 +31,35 @@ struct evens_before_odds
   }
 };
 
-void sortingFunc(std::vector<int> array1)
+void sortingFunc(std::vector<int> host_array)
 {
-thrust::device_vector<int> vec(array1);
+thrust::device_vector<int> device_vecArray(host_array);
 std::cout << "sorting integers\n";
   {
-    //print(vec);
-    std::clock_t start;
-    double duration;
-    start = std::clock();
-    thrust::sort(vec.begin(), vec.end());
-    duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-    std::cout<<"printf: "<< duration <<'\n';
-	//print(vec);
+	/* Start the Sorter clock */
+    std::clock_t start_sort;
+    double duration_sort;
+    start_sort = std::clock();
+    
+    /* Sort the Array */
+    thrust::sort(device_vecArray.begin(), device_vecArray.end());
+    
+    /* Calculate the duration and print it */
+    duration_sort = ( std::clock() - start_sort ) / (double) CLOCKS_PER_SEC;
+    std::cout<<"sorting time: "<< duration_sort <<'\n';
+	
+	/* Start the Copy clock */
+	std::clock_t start_copy;
+    double duration_copy;
+    start_copy = std::clock();
+    
+    /* Copy Vectory array to the pglog csv file */
     std::ofstream output_file("/home/hitesh/Desktop/Project/Project_Final_Work/pglog.csv");
     std::ostream_iterator<int> output_iterator(output_file, "\n");
-    thrust::copy(vec.begin(), vec.end(), output_iterator);
+    thrust::copy(device_vecArray.begin(), device_vecArray.end(), output_iterator);
+    
+    /* Calculate the Copying duration and print it */
+    duration_copy = ( std::clock() - start_copy ) / (double) CLOCKS_PER_SEC;
+    std::cout<<"copying time: "<< duration_copy <<'\n';
   }
 }
