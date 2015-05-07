@@ -3,10 +3,13 @@
 #include <vector>
 #include <stdlib.h>
 #include <string.h>
-#include <ctime>
 #include <time.h>
+#include <fstream>
+#define ARRAY_SIZE 2048
 
-void sortingFunc(std::vector<int> array);
+void sortingFuncAsc(std::vector<int> array);
+void sortingFuncDesc(std::vector<int> array);
+
 
 using namespace std;
 using namespace pqxx;
@@ -18,25 +21,38 @@ char * ReturnToken()
 	char * buffer;
 	size_t result;
 	static char *s = 0;
-
-	pFile = fopen ( "/tmp/Parsed_Query.txt" , "r" );
+	string PID;
+	ifstream infile;
+	
+	/* Open pid_Process file and copy the PID into PID variable */
+	infile.open ("/tmp/pid_Process.txt");
+    getline(infile, PID); // Saves the line in STRING.
+	cout<<PID<<'\n'; // Prints our STRING.
+    infile.close();
+	
+	/* Store file location in fileLoc */
+	string fileLoc = "/tmp/";
+	fileLoc = fileLoc + PID;
+	fileLoc = fileLoc + ".txt";
+	
+	pFile = fopen ( fileLoc.c_str() , "r" );
 	if (pFile==NULL) {fputs ("File error",stderr); return s;}
 
-	// obtain file size:
+	/* Obtain file size */
 	fseek (pFile , 0 , SEEK_END);
 	lSize = ftell (pFile);
 	rewind (pFile);
 
-	// allocate memory to contain the whole file:
+	/* Allocate memory to contain the whole file */
 	buffer = (char*) malloc (sizeof(char)*lSize);
 	if (buffer == NULL) {fputs ("Memory error",stderr); exit (2);}
 
-	// copy the file into the buffer:
+	/* Copy the file into the buffer */
 	result = fread (buffer,1,lSize,pFile);
 	if (result != lSize) {fputs ("Reading error",stderr); exit (3);}
-	// the whole file is now loaded in the memory buffer. 
+	/* The whole file is now loaded in the memory buffer */
 
-	// terminate
+	/* Terminate */
 	fclose (pFile);
 	return buffer;
 }
@@ -82,14 +98,22 @@ int main(int argc, char* argv[])
 		{
 			Postgres_Vector_Array.push_back(c[0].as<int>());
 		}
+		printf("%s", dir_token);
 		
 		/* Sort the numbers on GPU */
-		sortingFunc(Postgres_Vector_Array);
+		if (strcmp(dir_token, "ASC") == 0) /*Ascending Order*/
+		{
+			sortingFuncAsc(Postgres_Vector_Array);
+		}
+		else if (strcmp(dir_token, "DESC") == 0) /*Descending Order*/
+		{
+			sortingFuncDesc(Postgres_Vector_Array);
+		}
+		
 		cout << "Sorting done successfully" << endl;
-      
 		time (&end);
 		double dif = difftime (end,start);
-		printf ("Elasped time for 2 Fetch, One Sort and One Copy to File opertaions is %.2lf seconds.\n", dif );
+		printf ("Elasped time for 1 Fetch, One Sort and One Copy to File opertaions is %.2lf seconds.\n", dif );
 		
 		/* Disconnect */
 		C.disconnect ();
