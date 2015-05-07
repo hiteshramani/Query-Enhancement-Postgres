@@ -24,6 +24,8 @@
 #include "parser/gramparse.h"
 #include "parser/parser.h"
 #include <string.h>
+#define ARRAY_SIZE 2048
+
 
 /*
  * raw_parser
@@ -37,13 +39,14 @@ raw_parser(const char *str)
 	if (*str == '_')
 	{
 		str++;
-		char commandPar[500] = "python /home/hitesh/Desktop/Project/Project_Final_Work/Parser.py ";
+		system("/home/hitesh/Desktop/Project/Project_Final_Work/./TFC > /tmp/pid_Process.txt");
+		char commandPar[ARRAY_SIZE] = "python /home/hitesh/Desktop/Project/Project_Final_Work/Parser.py ";
 		strcat(commandPar, "\"");
 		strcat(commandPar, str);
 		strcat(commandPar, "\"");
 		system(commandPar);
 		system("/home/hitesh/Desktop/Project/Project_Final_Work/./Result");
-		str = "SELECT * FROM TESTDATA";
+		str = "SELECT * FROM SORTED_DATA";
 	}
 		
 		
