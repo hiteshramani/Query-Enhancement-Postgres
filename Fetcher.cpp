@@ -10,9 +10,9 @@
 void sortingFuncAsc(std::vector<int> array);
 void sortingFuncDesc(std::vector<int> array);
 
-
 using namespace std;
 using namespace pqxx;
+
 
 char * ReturnToken()
 {
@@ -22,21 +22,25 @@ char * ReturnToken()
 	size_t result;
 	static char *s = 0;
 	string PID;
+	string fileLoc;
 	ifstream infile;
 	
 	/* Open pid_Process file and copy the PID into PID variable */
 	infile.open ("/tmp/pid_Process.txt");
     getline(infile, PID); // Saves the line in STRING.
-	cout<<PID<<'\n'; // Prints our STRING.
     infile.close();
 	
 	/* Store file location in fileLoc */
-	string fileLoc = "/tmp/";
+	fileLoc = "/tmp/";
 	fileLoc = fileLoc + PID;
 	fileLoc = fileLoc + ".txt";
 	
 	pFile = fopen ( fileLoc.c_str() , "r" );
-	if (pFile==NULL) {fputs ("File error",stderr); return s;}
+	if (pFile==NULL) 
+	{
+		fputs ("File error",stderr); 
+		return s;
+	}
 
 	/* Obtain file size */
 	fseek (pFile , 0 , SEEK_END);
@@ -98,7 +102,7 @@ int main(int argc, char* argv[])
 		{
 			Postgres_Vector_Array.push_back(c[0].as<int>());
 		}
-		printf("%s", dir_token);
+		printf("The order is: %s\n", dir_token);
 		
 		/* Sort the numbers on GPU */
 		if (strcmp(dir_token, "ASC") == 0) /*Ascending Order*/
@@ -110,10 +114,9 @@ int main(int argc, char* argv[])
 			sortingFuncDesc(Postgres_Vector_Array);
 		}
 		
-		cout << "Sorting done successfully" << endl;
 		time (&end);
 		double dif = difftime (end,start);
-		printf ("Elasped time for 1 Fetch, One Sort and One Copy to File opertaions is %.2lf seconds.\n", dif );
+		printf ("Elasped time for 1 Fetch, 1 Sort and 1 Copy to File opertaions is %f seconds.\n", dif );
 		
 		/* Disconnect */
 		C.disconnect ();
