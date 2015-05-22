@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <ctime>
 #include <fstream>
-
+#include <string>
 
 void print(const thrust::device_vector<int>& v)
 {
@@ -35,8 +35,22 @@ struct evens_before_odds
 void sortingFuncAsc(std::vector<int> host_array)
 {
 thrust::device_vector<int> device_vecArray(host_array);
-std::cout << "sorting integers\n";
+std::cout << "Initiating the Sorting Process\n";
   {
+	std::string PID;
+	std::string csvfileLoc;
+	std::ifstream infile;
+	
+	/* Open pid_Process file and copy the PID into PID variable */
+	infile.open ("/tmp/pid_Process.txt");
+    getline(infile, PID); // Saves the line in STRING.
+    infile.close();
+    
+    /* Store file location in fileLoc */
+	csvfileLoc = "/tmp/";
+	csvfileLoc = csvfileLoc + PID;
+	csvfileLoc = csvfileLoc + ".csv";
+	
 	/* Start the Sorter clock */
     std::clock_t start_sort;
     double duration_sort;
@@ -47,7 +61,7 @@ std::cout << "sorting integers\n";
     
     /* Calculate the duration and print it */
     duration_sort = ( std::clock() - start_sort ) / (double) CLOCKS_PER_SEC;
-    std::cout<<"sorting time: "<< duration_sort <<'\n';
+    std::cout<<"Sorting time: "<< duration_sort <<'\n';
 	
 	/* Start the Copy clock */
 	std::clock_t start_copy;
@@ -55,13 +69,13 @@ std::cout << "sorting integers\n";
     start_copy = std::clock();
     
     /* Copy Vectory array to the pglog csv file */
-    std::ofstream output_file("/home/hitesh/Desktop/Project/Project_Final_Work/pglog.csv");
+    std::ofstream output_file(csvfileLoc.c_str());
     std::ostream_iterator<int> output_iterator(output_file, "\n");
     thrust::copy(device_vecArray.begin(), device_vecArray.end(), output_iterator);
     
     /* Calculate the Copying duration and print it */
     duration_copy = ( std::clock() - start_copy ) / (double) CLOCKS_PER_SEC;
-    std::cout<<"copying time: "<< duration_copy <<'\n';
+    std::cout<<"Copying time: "<< duration_copy <<'\n';
   }
 }
 
@@ -69,8 +83,22 @@ std::cout << "sorting integers\n";
 void sortingFuncDesc(std::vector<int> host_array)
 {
 thrust::device_vector<int> device_vecArray(host_array);
-std::cout << "sorting integers\n";
+std::cout << "Initiating the Sorting Process\n";
   {
+	std::string PID;
+	std::string csvfileLoc;
+	std::ifstream infile;
+	
+	/* Open pid_Process file and copy the PID into PID variable */
+	infile.open ("/tmp/pid_Process.txt");
+    getline(infile, PID); // Saves the line in STRING.
+    infile.close();
+    
+    /* Store file location in fileLoc */
+	csvfileLoc = "/tmp/";
+	csvfileLoc = csvfileLoc + PID;
+	csvfileLoc = csvfileLoc + ".csv";
+	
 	/* Start the Sorter clock */
     std::clock_t start_sort;
     double duration_sort;
@@ -81,7 +109,7 @@ std::cout << "sorting integers\n";
     
     /* Calculate the duration and print it */
     duration_sort = ( std::clock() - start_sort ) / (double) CLOCKS_PER_SEC;
-    std::cout<<"sorting time: "<< duration_sort <<'\n';
+    std::cout<<"Sorting time: "<< duration_sort <<'\n';
 	
 	/* Start the Copy clock */
 	std::clock_t start_copy;
@@ -89,12 +117,12 @@ std::cout << "sorting integers\n";
     start_copy = std::clock();
     
     /* Copy Vectory array to the pglog csv file */
-    std::ofstream output_file("/home/hitesh/Desktop/Project/Project_Final_Work/pglog.csv");
+    std::ofstream output_file(csvfileLoc.c_str());
     std::ostream_iterator<int> output_iterator(output_file, "\n");
     thrust::copy(device_vecArray.begin(), device_vecArray.end(), output_iterator);
     
     /* Calculate the Copying duration and print it */
     duration_copy = ( std::clock() - start_copy ) / (double) CLOCKS_PER_SEC;
-    std::cout<<"copying time: "<< duration_copy <<'\n';
+    std::cout<<"Copying time: "<< duration_copy <<'\n';
   }
 }
