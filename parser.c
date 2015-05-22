@@ -39,14 +39,28 @@ raw_parser(const char *str)
 	if (*str == '_')
 	{
 		str++;
-		system("/home/hitesh/Desktop/Project/Project_Final_Work/./TFC > /tmp/pid_Process.txt");
+		char strsetup[10] = "fsetup;";
+		if (strcmp(str,strsetup) == 0)
+		{
+			system("/home/hitesh/Desktop/Project/Project_Final_Work/./TFC > /tmp/pid_Process.txt");
+			system("/home/hitesh/Desktop/Project/Project_Final_Work/./setup");
+			exit(0);
+		}
+		
+		FILE *fp;
+		char uPID[255];
+		fp = fopen("/tmp/pid_Process.txt", "r");
+		fscanf(fp, "%s", uPID);
+		
 		char commandPar[ARRAY_SIZE] = "python /home/hitesh/Desktop/Project/Project_Final_Work/Parser.py ";
 		strcat(commandPar, "\"");
 		strcat(commandPar, str);
 		strcat(commandPar, "\"");
 		system(commandPar);
 		system("/home/hitesh/Desktop/Project/Project_Final_Work/./Result");
-		str = "SELECT * FROM SORTED_DATA";
+		char newstr[ARRAY_SIZE] = "SELECT * FROM pglog_";
+		strcat(newstr, uPID);
+		str = newstr;
 	}
 		
 		
